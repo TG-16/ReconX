@@ -26,22 +26,31 @@ async function saveSearchResult(data) {
 }
 
 async function getResultsByTarget(targetId, page = 1, limit = 10) {
+
+  page = Number(page) || 1;
+  limit = Number(limit) || 10;
+
   const offset = (page - 1) * limit;
 
-  const [rows] = await pool.execute(
+  console.log(typeof targetId, targetId);
+  console.log(typeof limit, limit);
+  console.log(typeof offset, offset);
+
+
+  const [rows] = await pool.query(
     `SELECT id, title, url, snippet, rank_position, created_at
      FROM search_results
      WHERE target_id = ?
      ORDER BY created_at DESC
      LIMIT ? OFFSET ?`,
-    [targetId, limit, offset]
+    [Number(targetId), limit, offset]
   );
 
   const [countResult] = await pool.execute(
     `SELECT COUNT(*) as total
      FROM search_results
      WHERE target_id = ?`,
-    [targetId]
+    [Number(targetId)]
   );
 
   return {
@@ -51,6 +60,7 @@ async function getResultsByTarget(targetId, page = 1, limit = 10) {
     limit
   };
 }
+
 
 
 module.exports = { saveSearchResult, getResultsByTarget };
